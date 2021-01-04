@@ -25,6 +25,22 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+// respond to a POST route on `/api/users`
+app.post('/api/users', (req, res) => {
+  const { id, email, password, name } = req.body;
+  connection.query('INSERT INTO user(id, email, password, name) VALUES(?,?,?,?)', [id, email, password, name], (err, results) => {
+    if (err) {
+      // If an error has occurred, then the client is informed of the error
+      res.status(500).json({
+        error: err.message,
+        sql: err.sql,
+      });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 app.listen(process.env.PORT, (err) => {
   if (err) {
     throw new Error('Something bad happened...');
