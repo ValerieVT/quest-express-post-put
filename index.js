@@ -78,6 +78,38 @@ app.post(
   },
 );
 
+// ZONE DE TRAVAIL
+
+app.put(
+  '/api/users/:id',
+  userValidationMiddlewares,
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    // We use the insertId attribute of results to build the WHERE clause
+    return connection.query('UPDATE user SET name=?, email=?, password=? WHERE id = ?', [req.body.name, req.body.email, req.body.password, Number(req.params.id)], (err2, results) => {
+      if (err2) {
+        return res.status(500).json({
+          error: err2.message,
+          sql: err2.sql,
+        });
+      }
+      // If all went well, records is an object
+      const modifiedUser = {
+        id: results.insertId,
+        name: req.body.name,
+        email: req.body.email,
+        password: '(encrypted)',
+      };
+      // Send the status and the full object modified (except password)
+      return res.status(200).json(modifiedUser);
+    });
+  },
+);
+
+
 app.listen(process.env.PORT, (err) => {
   if (err) {
     throw new Error('Something bad happened...');
