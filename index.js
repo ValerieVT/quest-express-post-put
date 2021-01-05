@@ -78,8 +78,6 @@ app.post(
   },
 );
 
-// ZONE DE TRAVAIL
-
 app.put(
   '/api/users/:id',
   userValidationMiddlewares,
